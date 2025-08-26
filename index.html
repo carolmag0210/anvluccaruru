@@ -213,8 +213,8 @@
       setTimeout(() => {
         closePopup();
         document.getElementById("mensagemSucesso").style.display = "none";
-        document.getElementById("nome").value = "";
-        document.getElementById("familia").value = "";
+        document.getElementById("nomeSobrenome").value = "";
+        document.getElementById("familia").value || "—";
         enviarBtn.disabled = false; // reabilitar o botão 
       }, 2000);
     }
@@ -278,6 +278,7 @@ this.color = colors[Math.floor(Math.random() * colors.length)];
 </script>
 </body>
 </html>
+
 
 
 
