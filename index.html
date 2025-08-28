@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>✨ Aniversário de Luciene Vilela ✨</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -12,11 +13,14 @@
       background: linear-gradient(135deg, #fff 60%, #f5e6c5 100%);
       color: #333;
       text-align: center;
+      background-image: radial-gradient(circle, rgba(212,175,55,0.2) 2px, transparent 2px),
+                        radial-gradient(circle, rgba(255,0,0,0.15) 2px, transparent 2px),
+                        radial-gradient(circle, rgba(0,0,255,0.15) 2px, transparent 2px);
+      background-size: 60px 60px;
     }
 
-    /* pra deixar elegante */
     header {
-      padding: 3rem 1rem;
+      padding: 3rem 1rem 2rem;
       background: linear-gradient(to bottom, #fdfdfd, #f7dba7);
       border-bottom: 3px solid #d4af37;
     }
@@ -24,7 +28,7 @@
     header h1 {
       font-size: 3rem;
       color: #d4af37;
-      font-family: 'Playfair Display', serif;
+      font-family: 'Dancing Script', cursive;
       text-shadow: 1px 1px 2px #aaa;
       margin-bottom: 0.5rem;
     }
@@ -33,6 +37,12 @@
       color: #333;
       font-size: 1.3rem;
       font-style: italic;
+      margin-bottom: 1rem;
+    }
+
+    header img {
+      height: 90px;
+      margin-top: 10px;
     }
 
     .container {
@@ -48,6 +58,17 @@
     .highlight {
       color: #d4af37;
       font-weight: bold;
+    }
+
+    .local {
+      margin: 1.5rem 0;
+      background: #f0f8ff;
+      padding: 1.5rem;
+      border: 2px dashed #d4af37;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #333;
     }
 
     .btn {
@@ -79,7 +100,7 @@
       font-style: italic;
     }
 
-    /* = pop-up  */
+    /* popup */
     .popup-overlay {
       display: none;
       position: fixed;
@@ -124,12 +145,13 @@
       from { opacity: 0; transform: scale(0.8); }
       to { opacity: 1; transform: scale(1); }
     }
+
     #glitterCanvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none; /* não atrapalha o clique */
-  z-index: 9999; /* fica por cima */
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
     }
   </style>
 </head>
@@ -137,19 +159,21 @@
   <header>
     <h1>✨ Aniversário de Luciene ✨</h1>
     <p>Dia 28 de Setembro - Venha comemorar o meu aniversário com o Caruru de São Cosme e Damião!</p>
+    <!-- Aqui você troca a URL pela imagem que quiser -->
+    <img src="Oracao-de-Sao-Cosme-e-Damiao.png" alt="São Cosme e Damião" style="height:120px; margin-top:10px;">
   </header>
 
   <div class="container">
     <p>É com alegria que convido você para um dia de <span class="highlight">celebração, carinho e boas lembranças</span>!<br>
     Confirme sua presença e vamos brindar essa data especial!</p>
 
-    <h3> 📍 Local e Horário:</h3>
-    <p style="color:#d4af37; font-size:1.1rem; font-weight:bold;">
+    <h3 style="color:#b22222; font-family:'Dancing Script', cursive; font-size:1.6rem;">📍 Local e Horário:</h3>
+    <div class="local">
       Pupileira<br>
       Av. Joana Angélica, 79 - Tororó, 40050-001<br>
       Salvador - BA<br>
       ⏰ 13:00h
-    </p>
+    </div>
 
     <button class="btn" onclick="openPopup()">Confirmar Presença ✅</button>
   </div>
@@ -158,7 +182,7 @@
     ✨ Com carinho, Luciene Vilela ✨
   </footer>
 
-  <!-- pop-up -->
+  <!-- popup -->
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup">
       <h2>Confirme sua presença:</h2>
@@ -174,115 +198,95 @@
     function openPopup() {
       document.getElementById("popupOverlay").style.display = "flex";
     }
-
     function closePopup() {
       document.getElementById("popupOverlay").style.display = "none";
     }
-
     function enviarConfirmacao() {
-  const enviarBtn = document.getElementById("enviarBtn");
-  enviarBtn.disabled = true; // desabilitar o botão para evitar repetições
-
-  const nome = document.getElementById("nomeSobrenome").value;
-  if(nome.trim() === "") {
-    alert("Por favor, insira seu nome.");
-    enviarBtn.disabled = false; // reabilita se não digitar nome
-    return;
-  }
-
+      const enviarBtn = document.getElementById("enviarBtn");
+      enviarBtn.disabled = true;
+      const nome = document.getElementById("nomeSobrenome").value;
+      if(nome.trim() === "") {
+        alert("Por favor, insira seu nome.");
+        enviarBtn.disabled = false;
+        return;
+      }
       document.getElementById("mensagemSucesso").style.display = "block";
-      
-      // aqui vai ser pra jogar na planilha
       fetch("https://script.google.com/macros/s/AKfycbyJou8QsnvKEPTyq4AJmAIk_Bog7hGOnUxEMvdouUwk_oL-mF7u4kLIWV7Xh9zaLJO0aw/exec", {
-  method: "POST",
-  body: JSON.stringify({
-    nome: nome,
-    familia: document.getElementById("familia").value
-  })
-})
-.then(response => {
-  if(response.ok){
-    document.getElementById("mensagemSucesso").style.display = "block";
-  } else {
-    alert("Erro ao enviar confirmação. Tente novamente.");
-  }
-})
-.catch(() => alert("Erro de conexão. Verifique sua internet."));
-
-      // Fecha popup depois de 2s (pode ser q eu altere)
-            setTimeout(() => {
-  closePopup();
-  document.getElementById("mensagemSucesso").style.display = "none";
-  document.getElementById("nomeSobrenome").value = ""; // corrigido
-  document.getElementById("familia").value = "";       // continua certo
-  enviarBtn.disabled = false; // reabilitar o botão 
-}, 2000);
+        method: "POST",
+        body: JSON.stringify({
+          nome: nome,
+          familia: document.getElementById("familia").value
+        })
+      })
+      .then(response => {
+        if(response.ok){
+          document.getElementById("mensagemSucesso").style.display = "block";
+        } else {
+          alert("Erro ao enviar confirmação. Tente novamente.");
+        }
+      })
+      .catch(() => alert("Erro de conexão. Verifique sua internet."));
+      setTimeout(() => {
+        closePopup();
+        document.getElementById("mensagemSucesso").style.display = "none";
+        document.getElementById("nomeSobrenome").value = "";
+        document.getElementById("familia").value = "";
+        enviarBtn.disabled = false;
+      }, 2000);
     }
   </script>
+
   <canvas id="glitterCanvas"></canvas>
-
-<script>
-  const canvas = document.getElementById("glitterCanvas");
-  const ctx = canvas.getContext("2d");
-  let particles = [];
-
-  // ajustar tamanho da tela
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  window.addEventListener("resize", resize);
-  resize();
-
-  class Particle {
-    constructor() {
-      this.x = Math.random() * canvas.width;
-      this.y = Math.random() * canvas.height - canvas.height;
-      this.size = Math.random() * 4 + 1;
-      this.speedY = Math.random() * 2 + 1;
-      const colors = ["#ffffff", "#d4af37"]; // branco e dourado
-this.color = colors[Math.floor(Math.random() * colors.length)];
+  <script>
+    const canvas = document.getElementById("glitterCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
-    update() {
-      this.y += this.speedY;
-      if (this.y > canvas.height) {
-        this.y = -this.size;
+    window.addEventListener("resize", resize);
+    resize();
+
+    class Particle {
+      constructor() {
         this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.size = Math.random() * 4 + 1;
+        this.speedY = Math.random() * 2 + 1;
+        const colors = ["#ffffff", "#d4af37", "#ff0000", "#0000ff"];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+      }
+      update() {
+        this.y += this.speedY;
+        if (this.y > canvas.height) {
+          this.y = -this.size;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
       }
     }
-    draw() {
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = this.color;
-      ctx.fill();
+
+    function createParticles(num) {
+      for (let i = 0; i < num; i++) {
+        particles.push(new Particle());
+      }
     }
-  }
-
-  function createParticles(num) {
-    for (let i = 0; i < num; i++) {
-      particles.push(new Particle());
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animate);
     }
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-      p.update();
-      p.draw();
-    });
-    requestAnimationFrame(animate);
-  }
-
-  createParticles(100); // quantidade de glitter... essa quantidade ta ok
-  animate();
-</script>
+    createParticles(120);
+    animate();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
