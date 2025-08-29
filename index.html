@@ -10,7 +10,8 @@
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Georgia', serif;
+      font-family: 'Dancing Script', cursive;
+      font-size: 34px;
       background: linear-gradient(135deg, #fff 60%, #f5e6c5 100%);
       color: #333;
       text-align: center;
@@ -27,7 +28,7 @@
     }
 
     header h1 {
-      font-size: 3rem;
+      font-size: 5rem;
       color: #d4af37;
       font-family: 'Dancing Script', cursive;
       text-shadow: 1px 1px 2px #aaa;
@@ -36,7 +37,7 @@
 
     header p {
       color: #333;
-      font-size: 1.3rem;
+      font-size: 1.8rem;
       font-style: italic;
       margin-bottom: 1rem;
     }
@@ -67,7 +68,7 @@
       padding: 1.5rem;
       border: 2px dashed #d4af37;
       border-radius: 15px;
-      font-size: 1.1rem;
+      font-size: 1.5rem;
       font-weight: bold;
       color: #333;
     }
@@ -170,11 +171,13 @@
 
     
     <div class="local">
-      <h3 style="color:#b22222; font-family:'Dancing Script', cursive; font-size:1.6rem;">📍 Local e Horário:</h3>
-      Pupileira<br>
-      Av. Joana Angélica, 79 - Tororó, 40050-001<br>
-      Salvador - BA<br>
-      ⏰ 13:00h
+      <h3 style="color:#b22222; font-family:'Dancing Script', cursive; font-size:2rem;">📍 Local e Horário:</h3>
+      <p class="local-horario">
+  Pupileira<br>
+  Av. Joana Angélica, 79 - Tororó, 40050-001<br>
+  Salvador - BA<br>
+  ⏰ 13:00h
+</p>
     </div>
 
     <button class="btn" onclick="openPopup()">Confirmar Presença ✅</button>
@@ -338,4 +341,3 @@ function closePopup() {
   </script>
 </body>
 </html>
-
