@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>✨ Aniversário de Luciene Vilela ✨</title>
-<link rel="icon" type="image/png" href="Ldourado.png">
+    <link rel="icon" type="image/png" href="Ldourado.png">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -61,7 +61,7 @@
       font-weight: bold;
     }
 
-   .local {
+    .local {
       margin: 1.5rem 0;
       background: #feffff;
       padding: 1.5rem;
@@ -161,15 +161,16 @@
     <h1>✨ Aniversário de Luciene ✨</h1>
     <p>Dia 28 de Setembro - Venha comemorar o meu aniversário com o Caruru de São Cosme e Damião!</p>
     <!-- Aqui eu troco a URL pela imagem que eu quiser -->
-    <img src="cosmeedamsemfundo.png" alt="São Cosme e Damião" style="height:120px; margin-top:10px;">
+     <img src="cosmeedamsemfundo.png" alt="São Cosme e Damião" style="height:120px; margin-top:10px;">
   </header>
 
   <div class="container">
     <p>É com alegria que convido você para um dia de <span class="highlight">celebração, carinho e boas lembranças</span>!<br>
     Confirme sua presença e vamos brindar essa data especial!</p>
 
-    <h3 style="color:#b22222; font-family:'Dancing Script', cursive; font-size:1.6rem;">📍 Local e Horário:</h3>
+    
     <div class="local">
+      <h3 style="color:#b22222; font-family:'Dancing Script', cursive; font-size:1.6rem;">📍 Local e Horário:</h3>
       Pupileira<br>
       Av. Joana Angélica, 79 - Tororó, 40050-001<br>
       Salvador - BA<br>
@@ -177,64 +178,110 @@
     </div>
 
     <button class="btn" onclick="openPopup()">Confirmar Presença ✅</button>
+    <p style="margin: top 1rem; color:#777;">✨ Com carinho, Luciene Vilela ✨</p>
   </div>
 
-  <footer>
-    ✨ Com carinho, Luciene Vilela ✨
-  </footer>
+
+    
+
 
   <!-- popup -->
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup">
-      <h2>Confirme sua presença:</h2>
+<div class="popup-overlay" id="popupOverlay">
+  <div class="popup">
+    <h2>Confirme sua presença:</h2>
+
+    <!-- parte 1: formulário -->
+    <div id="formularioPresenca">
       <input type="text" id="nomeSobrenome" placeholder="Nome e Sobrenome" required>
-      <input type="text" id="familia" placeholder="Nomes dos Integrantes da família">
-      <button id= "enviarBtn" class="btn" onclick="enviarConfirmacao()">Enviar ✅</button>
-      <button class="btn" style="background:#999;" onclick="closePopup()">Cancelar ❌</button>
-      <p id="mensagemSucesso" style="color:green; display:none; margin-top:1rem;">🎉 Presença confirmada! Obrigada 💖</p>
+      <input type="text" id="familia" placeholder="Nomes dos Integrantes da Família">
+      <button id="enviarBtn" class="btn" onclick="enviarConfirmacao()">Enviar ✅</button>
+      <button class="btn" style="background:#d4af37;" onclick="closePopup()">Cancelar ❌</button>
+    </div>
+
+    <!-- parte 2: confirmação -->
+    <div id="confirmacaoSucesso" style="display:none; margin-top:1rem;">
+      <button class="btn" style="background:#4CAF50; margin-bottom:0.5rem;">
+        🎉 Presença confirmada! Obrigada 💖
+      </button>
+      <button class="btn" style="background:#d4af37;" onclick="closePopup()">Ok</button>
     </div>
   </div>
+</div>
 
   <script>
-    function openPopup() {
-      document.getElementById("popupOverlay").style.display = "flex";
+     function openPopup() {
+    // abro o popup e prepara para nova pessoa
+    document.getElementById("popupOverlay").style.display = "flex";
+    document.getElementById("nomeSobrenome").value = "";
+    document.getElementById("familia").value = "";
+    document.getElementById("formularioPresenca").style.display = "block";
+    document.getElementById("confirmacaoSucesso").style.display = "none";
+    const enviarBtn = document.getElementById("enviarBtn");
+    enviarBtn.disabled = false;
+    enviarBtn.style.display = "inline-block";
+  }
+ 
+   function closePopup() {
+    // apenas fecha; o reset acontece ao abrir de novo
+    document.getElementById("popupOverlay").style.display = "none";
+  }
+
+  function enviarConfirmacao() {
+    const enviarBtn = document.getElementById("enviarBtn");
+    const nome = document.getElementById("nomeSobrenome").value.trim();
+    const familia = document.getElementById("familia").value.trim();
+
+    if (!nome) {
+      alert("Por favor, insira seu nome.");
+      return;
     }
-    function closePopup() {
-      document.getElementById("popupOverlay").style.display = "none";
+
+       enviarBtn.disabled = true;
+  // escondo o formulário
+  document.getElementById("formularioPresenca").style.display = "none";
+
+  // mostro a confirmação
+  document.getElementById("confirmacaoSucesso").style.display = "block";
+
+  // envio os dados para o Google Script
+  fetch("https://script.google.com/macros/s/AKfycbyJou8QsnvKEPTyq4AJmAIk_Bog7hGOnUxEMvdouUwk_oL-mF7u4kLIWV7Xh9zaLJO0aw/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      nome: nome,
+      familia: document.getElementById("familia").value
+    })
+  })
+  .then(response => {
+    if (!response.ok) {
+      alert("Erro ao enviar confirmação. Tente novamente.");
     }
-    function enviarConfirmacao() {
-      const enviarBtn = document.getElementById("enviarBtn");
-      enviarBtn.disabled = true;
-      const nome = document.getElementById("nomeSobrenome").value;
-      if(nome.trim() === "") {
-        alert("Por favor, insira seu nome.");
-        enviarBtn.disabled = false;
-        return;
-      }
-      document.getElementById("mensagemSucesso").style.display = "block";
-      fetch("https://script.google.com/macros/s/AKfycbyJou8QsnvKEPTyq4AJmAIk_Bog7hGOnUxEMvdouUwk_oL-mF7u4kLIWV7Xh9zaLJO0aw/exec", {
-        method: "POST",
-        body: JSON.stringify({
-          nome: nome,
-          familia: document.getElementById("familia").value
-        })
-      })
-      .then(response => {
-        if(response.ok){
-          document.getElementById("mensagemSucesso").style.display = "block";
-        } else {
-          alert("Erro ao enviar confirmação. Tente novamente.");
-        }
-      })
-      .catch(() => alert("Erro de conexão. Verifique sua internet."));
-      setTimeout(() => {
-        closePopup();
-        document.getElementById("mensagemSucesso").style.display = "none";
-        document.getElementById("nomeSobrenome").value = "";
-        document.getElementById("familia").value = "";
-        enviarBtn.disabled = false;
-      }, 2000);
-    }
+  })
+  .catch(() => alert("Erro de conexão. Verifique sua internet."));
+}
+
+function openPopup() {
+  // abro o popup
+  document.getElementById("popupOverlay").style.display = "flex";
+  
+  // limpo os campos sempre que abrir
+  document.getElementById("nomeSobrenome").value = "";
+  document.getElementById("familia").value = "";
+
+  // mostro o formulário e esconde a mensagem de sucesso
+  document.getElementById("formularioPresenca").style.display = "block";
+  document.getElementById("confirmacaoSucesso").style.display = "none";
+
+  // reativo o botão Enviar
+  const enviarBtn = document.getElementById("enviarBtn");
+  enviarBtn.disabled = false;
+  enviarBtn.style.display = "inline-block";
+}
+
+function closePopup() {
+  // fecho o popup
+  document.getElementById("popupOverlay").style.display = "none";
+}
+
   </script>
 
   <canvas id="glitterCanvas"></canvas>
@@ -291,7 +338,3 @@
   </script>
 </body>
 </html>
-
-
-
-
