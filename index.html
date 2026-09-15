@@ -1279,6 +1279,57 @@
         transition: none !important;
       }
     }
+  
+    /* Estado de prazo encerrado */
+    .expired-state {
+      display: none;
+      text-align: center;
+      padding: 10px 2px 2px;
+    }
+
+    .expired-state.is-visible {
+      display: block;
+    }
+
+    .expired-mark {
+      width: 62px;
+      height: 62px;
+      margin: 0 auto 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #f7f0df, #efe1bd);
+      color: var(--gold-deep);
+      box-shadow: 0 12px 28px rgba(126, 96, 36, 0.12);
+    }
+
+    .expired-mark svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .expired-state h3 {
+      margin: 8px 0 10px;
+      color: var(--gold-deep);
+      font-family: "Cormorant Garamond", serif;
+      font-size: 34px;
+      line-height: 1.04;
+      font-weight: 600;
+    }
+
+    .expired-state > p:not(.modal-kicker) {
+      max-width: 430px;
+      margin: 0 auto 22px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
   </style>
 </head>
 
@@ -1300,7 +1351,7 @@
     <main id="inicio">
       <section class="hero" aria-labelledby="titulo-convite">
         <div class="hero-copy">
-          <div class="eyebrow">Você é meu convidado!</div>
+          <div class="eyebrow">Você é meu convidado</div>
 
           <h1 id="titulo-convite">
             Aniversário
@@ -1444,7 +1495,7 @@
           </div>
 
           <p class="deadline">
-            Para organizarmos tudo com carinho, pedimos a confirmação até <strong>20 de setembro</strong>.
+            Para organizarmos tudo com carinho, pedimos a confirmação até <strong id="rsvpDeadlineText">20 de setembro</strong>.
           </p>
         </article>
       </section>
@@ -1526,23 +1577,46 @@
           Fechar
         </button>
       </div>
+
+      <div class="expired-state" id="expiredState" aria-live="polite">
+        <div class="expired-mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8"></circle>
+            <path d="M12 8v4l2.5 1.5"></path>
+          </svg>
+        </div>
+        <p class="modal-kicker">Confirmações encerradas</p>
+        <h3>O prazo de confirmação terminou.</h3>
+        <p id="expiredMessage">
+          O prazo para confirmação de presença foi encerrado.
+        </p>
+        <button class="button button-secondary" id="expiredCloseButton" type="button">
+          Fechar
+        </button>
+      </div>
     </div>
   </div>
 
   <script>
     /* =========================================================
        CONFIGURAÇÃO
-       Mantivemos o mesmo Google Apps Script usado no convite anterior.
+       A data-limite fica centralizada no Google Apps Script.
+       Para estender o prazo, altere apenas DATA_LIMITE_RSVP
+       no Apps Script e publique uma nova versão da implantação.
        ========================================================= */
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJou8QsnvKEPTyq4AJmAIk_Bog7hGOnUxEMvdouUwk_oL-mF7u4kLIWV7Xh9zaLJO0aw/exec";
 
     const modal = document.getElementById("rsvpModal");
     const closeModalButton = document.getElementById("closeModalButton");
     const successCloseButton = document.getElementById("successCloseButton");
+    const expiredCloseButton = document.getElementById("expiredCloseButton");
     const openButtons = document.querySelectorAll("[data-open-rsvp]");
     const form = document.getElementById("rsvpForm");
     const formState = document.getElementById("formState");
     const successState = document.getElementById("successState");
+    const expiredState = document.getElementById("expiredState");
+    const expiredMessage = document.getElementById("expiredMessage");
+    const deadlineText = document.getElementById("rsvpDeadlineText");
     const nameInput = document.getElementById("nomeSobrenome");
     const familyInput = document.getElementById("familia");
     const formError = document.getElementById("formError");
@@ -1551,16 +1625,108 @@
 
     let lastFocusedElement = null;
 
+    const rsvpConfig = {
+      loaded: false,
+      aberto: true,
+      dataLimite: "",
+      dataLimiteFormatada: "20 de setembro",
+      mensagemEncerrado: "O prazo para confirmação de presença foi encerrado."
+    };
+
+    function jsonpRequest(action) {
+      return new Promise((resolve, reject) => {
+        const callbackName =
+          "__lucieneRsvp_" +
+          Date.now() +
+          "_" +
+          Math.random().toString(36).slice(2);
+
+        const script = document.createElement("script");
+
+        const timeout = window.setTimeout(() => {
+          cleanup();
+          reject(new Error("Tempo esgotado ao consultar a configuração."));
+        }, 8000);
+
+        function cleanup() {
+          window.clearTimeout(timeout);
+
+          try {
+            delete window[callbackName];
+          } catch (_) {
+            window[callbackName] = undefined;
+          }
+
+          script.remove();
+        }
+
+        window[callbackName] = (data) => {
+          cleanup();
+          resolve(data);
+        };
+
+        const url = new URL(GOOGLE_SCRIPT_URL);
+        url.searchParams.set("action", action);
+        url.searchParams.set("callback", callbackName);
+        url.searchParams.set("_", Date.now());
+
+        script.src = url.toString();
+        script.async = true;
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Não foi possível consultar o Google Apps Script."));
+        };
+
+        document.head.appendChild(script);
+      });
+    }
+
+    async function carregarConfiguracaoRsvp() {
+      try {
+        const data = await jsonpRequest("config");
+
+        if (data && data.status === "success") {
+          rsvpConfig.loaded = true;
+          rsvpConfig.aberto = Boolean(data.rsvpAberto);
+          rsvpConfig.dataLimite = data.dataLimite || "";
+          rsvpConfig.dataLimiteFormatada =
+            data.dataLimiteFormatada || rsvpConfig.dataLimiteFormatada;
+          rsvpConfig.mensagemEncerrado =
+            data.mensagemEncerrado || rsvpConfig.mensagemEncerrado;
+
+          deadlineText.textContent = rsvpConfig.dataLimiteFormatada;
+        }
+      } catch (error) {
+        console.warn("Não foi possível atualizar a configuração de RSVP:", error);
+      }
+
+      return rsvpConfig;
+    }
+
     function resetModal() {
       form.reset();
       formError.textContent = "";
       formState.style.display = "block";
       successState.classList.remove("is-visible");
+      expiredState.classList.remove("is-visible");
       submitButton.disabled = false;
       submitButtonText.textContent = "Confirmar presença";
     }
 
-    function openModal() {
+    function showExpired() {
+      formState.style.display = "none";
+      successState.classList.remove("is-visible");
+      expiredState.classList.add("is-visible");
+
+      expiredMessage.textContent =
+        rsvpConfig.mensagemEncerrado +
+        " O prazo informado foi até " +
+        rsvpConfig.dataLimiteFormatada +
+        ".";
+    }
+
+    async function openModal() {
       lastFocusedElement = document.activeElement;
       resetModal();
 
@@ -1568,7 +1734,19 @@
       modal.setAttribute("aria-hidden", "false");
       document.body.classList.add("modal-open");
 
-      window.setTimeout(() => nameInput.focus(), 180);
+      /*
+       * Reconsulta a configuração ao abrir.
+       * Assim, se você alterar a data no Apps Script,
+       * o convite passa a respeitar a nova data sem editar o HTML.
+       */
+      await carregarConfiguracaoRsvp();
+
+      if (!rsvpConfig.aberto) {
+        showExpired();
+        return;
+      }
+
+      window.setTimeout(() => nameInput.focus(), 120);
     }
 
     function closeModal() {
@@ -1583,6 +1761,7 @@
 
     function showSuccess() {
       formState.style.display = "none";
+      expiredState.classList.remove("is-visible");
       successState.classList.add("is-visible");
     }
 
@@ -1592,6 +1771,7 @@
 
     closeModalButton.addEventListener("click", closeModal);
     successCloseButton.addEventListener("click", closeModal);
+    expiredCloseButton.addEventListener("click", closeModal);
 
     modal.addEventListener("click", (event) => {
       if (event.target === modal) {
@@ -1620,17 +1800,30 @@
       }
 
       submitButton.disabled = true;
+      submitButtonText.textContent = "Verificando prazo...";
+
+      /*
+       * Faz uma última verificação antes de gravar.
+       * Isso evita que uma página aberta antes do encerramento
+       * continue aceitando RSVP depois da data-limite.
+       */
+      await carregarConfiguracaoRsvp();
+
+      if (!rsvpConfig.aberto) {
+        submitButton.disabled = false;
+        submitButtonText.textContent = "Confirmar presença";
+        showExpired();
+        return;
+      }
+
       submitButtonText.textContent = "Confirmando...";
 
       try {
-        /*
-          mode: "no-cors" mantém a chamada compatível com o Apps Script
-          sem alterar a estrutura da planilha que já funcionava no convite anterior.
-        */
         await fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           mode: "no-cors",
           body: JSON.stringify({
+            action: "rsvp",
             nome: nome,
             familia: familia
           })
@@ -1639,11 +1832,18 @@
         showSuccess();
       } catch (error) {
         console.error("Erro ao enviar confirmação:", error);
-        formError.textContent = "Não foi possível enviar agora. Verifique sua conexão e tente novamente.";
+        formError.textContent =
+          "Não foi possível enviar agora. Verifique sua conexão e tente novamente.";
         submitButton.disabled = false;
         submitButtonText.textContent = "Confirmar presença";
       }
     });
+
+    /*
+     * Atualiza a data exibida assim que a página abre.
+     * O convite continua aparecendo normalmente durante a consulta.
+     */
+    carregarConfiguracaoRsvp();
   </script>
 </body>
 </html>
