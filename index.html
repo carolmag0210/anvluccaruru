@@ -1519,7 +1519,7 @@
 
       <div id="formState">
         <p class="modal-kicker">Confirmação de presença</p>
-        <h2 id="modalTitle">Que bom ter você com a gente.</h2>
+        <h2 id="modalTitle">Que bom ter você com a gente!</h2>
         <p class="modal-description">
           Preencha seu nome e, se houver, informe também quem virá com você.
         </p>
@@ -1601,8 +1601,8 @@
     /* =========================================================
        CONFIGURAÇÃO
        A data-limite fica centralizada no Google Apps Script.
-       Para estender o prazo, altere apenas DATA_LIMITE_RSVP
-       no Apps Script e publique uma nova versão da implantação.
+       O modal consulta o prazo ao abrir. No envio, o backend
+       continua sendo a validação final da data-limite.
        ========================================================= */
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJou8QsnvKEPTyq4AJmAIk_Bog7hGOnUxEMvdouUwk_oL-mF7u4kLIWV7Xh9zaLJO0aw/exec";
 
@@ -1800,22 +1800,6 @@
       }
 
       submitButton.disabled = true;
-      submitButtonText.textContent = "Verificando prazo...";
-
-      /*
-       * Faz uma última verificação antes de gravar.
-       * Isso evita que uma página aberta antes do encerramento
-       * continue aceitando RSVP depois da data-limite.
-       */
-      await carregarConfiguracaoRsvp();
-
-      if (!rsvpConfig.aberto) {
-        submitButton.disabled = false;
-        submitButtonText.textContent = "Confirmar presença";
-        showExpired();
-        return;
-      }
-
       submitButtonText.textContent = "Confirmando...";
 
       try {
