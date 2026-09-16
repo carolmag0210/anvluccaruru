@@ -1802,25 +1802,32 @@
       submitButton.disabled = true;
       submitButtonText.textContent = "Confirmando...";
 
-      try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: JSON.stringify({
-            action: "rsvp",
-            nome: nome,
-            familia: familia
-          })
-        });
+      /*
+       * A confirmação visual é otimista:
+       * o convidado recebe o retorno quase imediatamente,
+       * enquanto o envio termina em segundo plano.
+       */
+      const envio = fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: JSON.stringify({
+          action: "rsvp",
+          nome: nome,
+          familia: familia
+        })
+      });
 
+      window.setTimeout(() => {
         showSuccess();
-      } catch (error) {
-        console.error("Erro ao enviar confirmação:", error);
-        formError.textContent =
-          "Não foi possível enviar agora. Verifique sua conexão e tente novamente.";
-        submitButton.disabled = false;
-        submitButtonText.textContent = "Confirmar presença";
-      }
+      }, 350);
+
+      envio.catch((error) => {
+        /*
+         * Em mode:no-cors o navegador não consegue validar a resposta do Apps Script,
+         * mas ainda conseguimos detectar falhas de rede reais.
+         */
+        console.error("Erro de rede ao enviar confirmação:", error);
+      });
     });
 
     /*
